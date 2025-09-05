@@ -104,6 +104,7 @@ jobs:
         if: ${{ always() }}
         run: |
           du -h | sort -h
+          df
       - name: Report test status
         if: ${{ always() }}
         run: |
