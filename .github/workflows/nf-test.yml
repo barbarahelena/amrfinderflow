@@ -100,6 +100,10 @@ jobs:
           shard: ${{ matrix.shard }}
           total_shards: ${{ env.TOTAL_SHARDS }}
 
+      - name: Workspace size
+        if: ${{ always() }}
+        run: |
+          du -h | sort -h
       - name: Report test status
         if: ${{ always() }}
         run: |
