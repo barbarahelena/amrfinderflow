@@ -192,12 +192,12 @@
                     },
                     "rgi/cardannotation": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "531d8a465158c5842f416623017997462a240e16",
                         "installed_by": ["modules"]
                     },
                     "rgi/main": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "531d8a465158c5842f416623017997462a240e16",
                         "installed_by": ["modules"]
                     },
                     "seqkit/seq": {
