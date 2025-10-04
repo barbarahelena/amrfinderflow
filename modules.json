@@ -107,32 +107,32 @@
                     },
                     "hamronization/abricate": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "9b7b08382573ec53d275470e5ff0e4a8200a1459",
                         "installed_by": ["modules"]
                     },
                     "hamronization/amrfinderplus": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "9b7b08382573ec53d275470e5ff0e4a8200a1459",
                         "installed_by": ["modules"]
                     },
                     "hamronization/deeparg": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "9b7b08382573ec53d275470e5ff0e4a8200a1459",
                         "installed_by": ["modules"]
                     },
                     "hamronization/fargene": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "9b7b08382573ec53d275470e5ff0e4a8200a1459",
                         "installed_by": ["modules"]
                     },
                     "hamronization/rgi": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "9b7b08382573ec53d275470e5ff0e4a8200a1459",
                         "installed_by": ["modules"]
                     },
                     "hamronization/summarize": {
                         "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "git_sha": "9b7b08382573ec53d275470e5ff0e4a8200a1459",
                         "installed_by": ["modules"]
                     },
                     "hmmer/hmmsearch": {
