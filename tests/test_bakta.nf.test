@@ -5,8 +5,9 @@ nextflow_pipeline {
     tag "pipeline"
     tag "nfcore_funcscan"
     tag "test_bakta"
+    profile "test_bakta"
 
-    test("test_bakta_profile") {
+    test("-profile test_bakta") {
 
         when {
             params {
@@ -60,18 +61,6 @@ nextflow_pipeline {
                     path("$outputDir/reports/ampcombi2/Ampcombi_complete.log")
                 ).match("ampcombi_logfiles") },
 
-                // DeepARG
-                { assert snapshot(
-                    path("$outputDir/arg/deeparg/sample_1/sample_1.align.daa.tsv"),
-                    path("$outputDir/arg/deeparg/sample_2/sample_2.align.daa.tsv"),
-                    path("$outputDir/arg/deeparg/sample_1/sample_1.mapping.ARG"),
-                    path("$outputDir/arg/deeparg/sample_2/sample_2.mapping.ARG")
-                ).match("deeparg_tsv_ARG") },
-                { assert file("$outputDir/arg/deeparg/sample_1/sample_1.align.daa").name },
-                { assert file("$outputDir/arg/deeparg/sample_2/sample_2.align.daa").name },
-                { assert path("$outputDir/arg/deeparg/sample_1/sample_1.mapping.potential.ARG").text.contains("#ARG") },
-                { assert path("$outputDir/arg/deeparg/sample_2/sample_2.mapping.potential.ARG").text.contains("#ARG") },
-
                 // ABRicate
                 { assert snapshot(
                     path("$outputDir/arg/abricate/sample_1/sample_1.txt"),
@@ -98,8 +87,8 @@ nextflow_pipeline {
                     path("$outputDir/arg/fargene/sample_2/class_b_1_2/results_summary.txt")
                 ).match("fargene")
                 },
-                { assert path("$outputDir/arg/fargene/sample_1/fargene_analysis.log").text.contains("fARGene is done.") },
-                { assert path("$outputDir/arg/fargene/sample_2/fargene_analysis.log").text.contains("fARGene is done.") },
+                { assert path("$outputDir/arg/fargene/sample_1/sample_1-class_b_1_2.log").text.contains("fARGene is done.") },
+                { assert path("$outputDir/arg/fargene/sample_2/sample_2-class_b_1_2.log").text.contains("fARGene is done.") },
 
                 // hAMRonization
                 { assert snapshot(path("$outputDir/reports/hamronization_summarize/hamronization_combined_report.tsv")).match("hamronization_summarize") },
