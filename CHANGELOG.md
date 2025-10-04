@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | antiSMASH     | 7.1.0            | 8.0.1       |
 | RGI           | 6.0.3            | 6.0.5       |
 | amrfinderplus | 3.12.8           | 4.0.23      |
+| hAMRonization | 1.1.4            | 1.1.9       |
 
 ### `Deprecated`
 
