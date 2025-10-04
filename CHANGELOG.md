@@ -20,10 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Dependencies`
 
-| Tool      | Previous Version | New Version |
-| --------- | ---------------- | ----------- |
-| antiSMASH | 7.1.0            | 8.0.1       |
-| RGI       | 6.0.3            | 6.0.5       |
+| Tool          | Previous Version | New Version |
+| ------------- | ---------------- | ----------- |
+| antiSMASH     | 7.1.0            | 8.0.1       |
+| RGI           | 6.0.3            | 6.0.5       |
+| amrfinderplus | 3.12.8           | 4.0.23      |
 
 ### `Deprecated`
 
