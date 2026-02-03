@@ -1,37 +1,32 @@
-# nf-core/funcscan: Usage
-
-## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/funcscan/usage](https://nf-co.re/funcscan/usage)
+# AMRfinderflow: Usage
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
 ## Introduction
 
-nf-core/funcscan is a pipeline for efficient and parallelised screening of long nucleotide sequences such as contigs for antimicrobial peptide genes, antimicrobial resistance genes, and biosynthetic gene clusters. It can additionally identify the taxonomic origin of the sequences.
+AMRfinderflow is a pipeline for efficient and parallelised screening of long nucleotide sequences such as contigs for antimicrobial resistance genes. It can additionally identify the taxonomic origin of the sequences and provide protein domain annotations.
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/funcscan --input samplesheet.csv --outdir <OUTDIR> -profile docker --run_<amp/arg/bgc>_screening
+nextflow run barbarahelena/amrfinderflow --input samplesheet.csv --outdir <OUTDIR> -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
-To run any of the three screening workflows (AMP, ARG, and/or BGC), taxonomic classification, and/or protein annotation, switch them on by adding the respective flag(s) to the command:
+ARG screening is enabled by default. You can optionally enable taxonomic classification and/or protein annotation by adding the respective flag(s) to the command:
 
-- `--run_amp_screening`
-- `--run_arg_screening`
-- `--run_bgc_screening`
-- `--run_taxa_classification` (for optional additional taxonomic annotations)
-- `--run_protein_annotation` (for optional additional protein family and domain annotation)
+- `--run_taxa_classification` (for optional taxonomic annotations)
+- `--run_protein_annotation` (for optional protein family and domain annotation)
 
-When switched on, all tools of the given workflow will be run by default. If you don't need specific tools, you can explicitly skip them. The exception is HMMsearch, which needs to be explicitly switched on and provided with HMM screening files (AMP and BGC workflows, see [parameter documentation](/funcscan/parameters)). For the taxonomic classification, MMseqs2 is currently the only tool implemented in the pipeline. Likewise, InterProScan is the only tool for protein sequence annotation.
+For the taxonomic classification, MMseqs2 is currently the only tool implemented in the pipeline. Likewise, InterProScan is the only tool for protein sequence annotation.
 
-**Example:** You want to run AMP and ARG screening but you don't need the DeepARG tool of the ARG workflow and the Macrel tool of the AMP workflow. Your command would be:
+**Example:** You want to run ARG screening with taxonomic classification and protein annotation:
 
 ```bash
-nextflow run nf-core/funcscan --input samplesheet.csv --outdir <OUTDIR> -profile docker --run_arg_screening --arg_skip_deeparg --run_amp_screening --amg_skip_macrel
+nextflow run barbarahelena/amrfinderflow --input samplesheet.csv --outdir <OUTDIR> -profile docker --run_taxa_classification --run_protein_annotation
 ```
 
 Note that the pipeline will create the following files in your working directory:
@@ -54,7 +49,7 @@ Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run nf-core/funcscan -profile docker -params-file params.yaml
+nextflow run barbarahelena/amrfinderflow -profile docker -params-file params.yaml
 ```
 
 with:
@@ -69,7 +64,7 @@ You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-c
 
 ## Samplesheet input
 
-nf-core/funcscan takes FASTA files as input, typically contigs or whole genome sequences. To supply these to the pipeline, you will need to create a samplesheet with information about the samples you would like to analyse. Use this parameter to specify its location.
+barbarahelena/amrfinderflow takes FASTA files as input, typically contigs or whole genome sequences. To supply these to the pipeline, you will need to create a samplesheet with information about the samples you would like to analyse. Use this parameter to specify its location.
 
 ```bash
 --input '[path to samplesheet file]'
@@ -106,8 +101,6 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 
 :::danger
 We highly recommend performing quality control on input contigs before running the pipeline. You may not receive results for some tools if none of the contigs in a FASTA file reach certain thresholds. Check parameter documentation for relevant minimum contig parameters.
-
-For example, ideally BGC screening requires contigs of at least 3,000 bp, otherwise downstream tools may crash.
 :::
 
 ## Notes on screening tools, taxonomic and functional classifications
@@ -145,19 +138,9 @@ Since the database download is huge (5.5GB) and might take quite some time, you 
 By default, the databases used by InterProScan is set as `PANTHER,ProSiteProfiles,ProSitePatterns,Pfam`. An addition of other application to the list does not guarantee that the results will be integrated correctly within `AMPcombi`.
 :::
 
-### antiSMASH
-
-antiSMASH has a minimum contig parameter, in which only contigs of a certain length (or longer) will be screened. If no contigs in an input file reach that minimum threshold, the tool will end with a 'failure' code, and cause the pipeline to crash.
-
-When the annotation is run with Prokka, the resulting `.gbk` file passed to antiSMASH may produce the error `translation longer than location allows` and end the pipeline run. This Prokka bug has been reported before (see [discussion on GitHub](https://github.com/antismash/antismash/discussions/450)) and is not likely to be fixed soon.
-
-:::warning
-If antiSMASH is run for BGC detection, we recommend to **not** run Prokka for annotation but instead use the default annotation tool (Pyrodigal), or switch to Prodigal or (for bacteria only!) Bakta.
-:::
-
 ## Databases and reference files
 
-Various tools of nf-core/funcscan use databases and reference files to operate.
+Various tools of AMRFinderFlow use databases and reference files to operate.
 
 nf-core/funcscan offers the functionality to auto-download databases for you, and as these databases can be very large, we suggest to store these files in a central place from where you can reuse them across pipeline runs.
 
@@ -171,7 +154,7 @@ As a reference, we will describe below where and how you can obtain databases an
 
 ### Bakta
 
-nf-core/funcscan offers multiple tools for annotating input sequences. Bakta is a new tool touted as a bacteria-only successor to the well-established Prokka.
+AMRFinderFlow offers multiple tools for annotating input sequences. Bakta is a new tool touted as a bacteria-only successor to the well-established Prokka.
 
 To supply the preferred Bakta database (and not have the pipeline download it for every new run), use the flag `--annotation_bakta_db`.
 The full or light Bakta database must be downloaded from the Bakta Zenodo archive.
@@ -205,121 +188,11 @@ The contents of the directory should have files such as `*.dmnd` in the top leve
 The flag `--save_db` saves the pipeline-downloaded databases in your results directory. You can then move these to a central cache directory of your choice for re-use in the future.
 :::
 
-### hmmsearch
-
-nf-core/funcscan allows screening of sequences for functional genes associated with various natural product types via Hidden Markov Models (HMMs) using hmmsearch.
-
-This requires supplying a list of HMM files ending in `.hmm`, that have models for the particular molecule(s) or BGCs you are interested in.
-You can download these files from places such as [PFAM](https://www.ebi.ac.uk/interpro/download/Pfam/) for antimicrobial peptides (AMP), or the antiSMASH GitHub repository for [biosynthetic gene cluster](https://github.com/antismash/antismash/tree/master/antismash/detection/hmm_detection/data) related HMMs, or create them yourself.
-
-You should place all HMMs in a directory, supply them to the AMP or BGC workflow and switch hmmsearch on:
-
-```bash
---amp_run_hmmsearch --amp_hmmsearch_models "/<path>/<to>/<amp>/*.hmm"
-```
-
-:::warning
-Ensure to wrap this path in double quotes if using an asterisk, to ensure Nextflow (not your shell) parses the wildcard.
-:::
-
-### AMPcombi
-
-For AMPcombi, nf-core/funcscan will by default download the most recent version of the [DRAMP](http://dramp.cpu-bioinfor.org/) database as a reference database, and modifies the files for aligning the AMP hits in the AMP workflow.
-
-nf-core/funcscan currently provides a python3 helper script to do these steps.
-
-```bash
-mkdir -p ampcombi/amp_ref_database
-cd ampcombi/
-wget https://github.com/nf-core/funcscan/raw/<PIPELINE_VERSION>/bin/ampcombi_download.py
-python3 ampcombi_download.py
-```
-
-In addition to [DRAMP](http://dramp.cpu-bioinfor.org/), two more reference databases can be used to classify the recovered AMPs in the AMP workflow; [APD](https://aps.unmc.edu/) and [UniRef100](https://academic.oup.com/bioinformatics/article/23/10/1282/197795). Only one database can be used at a time using `--amp_ampcombi_db_id <database_name>`.
-
-However, the user can also supply their own custom AMP database by following the guidelines in [AMPcombi](https://ampcombi.readthedocs.io/en/main/).
-This can then be passed to the pipeline with:
-
-```bash
---amp_ampcombi_db '/<path>/<to>/<ampcombi_database>
-```
-
-The contents of the directory should have files such as `*.fasta` and `*.tsv` in the top level; a fasta file and the corresponding table with structural, functional and (if reported) taxonomic classifications. AMPcombi will then generate the corresponding `mmseqs2` directory, in which all binary files are prepared for downstream alignment of the recovered AMPs with [MMseqs2](https://github.com/soedinglab/MMseqs2). These can also be provided by the user by setting up an MMseqs2-compatible database using `mmseqs createdb *.fasta` in a directory called `mmseqs2`. An example file structure for [DRAMP](http://dramp.cpu-bioinfor.org/) used as the reference database:
-
-```tree
-amp_DRAMP_database/
-├── general_amps_2024_11_13.fasta
-├── general_amps_2024_11_13.txt
-└── mmseqs2
-    ├── ref_DB
-    ├── ref_DB.dbtype
-    ├── ref_DB_h
-    ├── ref_DB_h.dbtype
-    ├── ref_DB_h.index
-    ├── ref_DB.index
-    ├── ref_DB.lookup
-    └── ref_DB.source
-```
-
-:::note
-For both [DRAMP](http://dramp.cpu-bioinfor.org/) and [APD](https://aps.unmc.edu/), AMPcombi removes entries that contain any non-amino acid residues by default.
-:::
-
-:::warning
-The pipeline will automatically run Pyrodigal instead of Prodigal if the parameters `--run_annotation_tool prodigal --run_amp_screening` are both provided.
-This is due to an incompatibility issue of Prodigal's output `.gbk` file with multiple downstream tools.
-:::
-
-:::tip
-
-- If `--run_protein_annotation` is activated, protein and domain classifications of the coding regions are generated and then used by the `ampcombi2/parsetables` module to create a table for every sample and afterwards the combined summary files, e.g. `Ampcombi_summary.tsv`.
-- In some cases when the AMP and the taxonomic classification subworkflows are turned on, it can happen that only summary files per sample are created in the output folder with **no** `Ampcombi_summary.tsv` and `Ampcombi_summary_cluster.tsv` files with no taxonomic classifications merged. This can occur if some AMP prediction parameters are 'too strict' or only one AMP tool is run, which can lead to no AMP hits found in any of the samples or in only one sample. Look out for the warning `[nf-core/funcscan] AMPCOMBI2: 0/1 file passed. Skipping AMPCOMBI2_COMPLETE, AMPCOMBI2_CLUSTER, and TAXONOMY MERGING steps.` in the stdout or `.nextflow.log` file. In that case we recommend to lower the AMP prediction thresholds and run more than one AMP prediction tool.
-  :::
-
-### ABRicate
-
-The default ABRicate installation comes with a series of 'default' databases:
-
-- NCBI AMRFinderPlus (`ncbi`)
-- CARD (`card`)
-- ResFinder (`resfinder`)
-- ARG-ANNOT (`argannot`)
-- MEGARES (`megares`)
-- EcOH (`echo`)
-- PlasmidFinder (`plasmidfinder`)
-- VFDB (`vfdb`)
-- Ecoli_VF (`ecoli_vf`)
-
-Each can be specified by using the nf-core/funcscan flag, for example for card: `--arg_abricate_db_id card`.
-
-ABRicate also allows you to download additional and/or use custom databases.
-For both of these, you will need to have your own local installation of ABRicate.
-You then can download/add the custom database to the local installation's database directory, and supply this directory to the pipeline with the flag `--arg_abricate_db`, in combination with the name of the new database to `--arg_abricate_db_id <db_name>`.
-
-For example, if you want to use the `bacmet2` database that does not come with the default installation, you could do:
-
-```bash
-## Create conda environment
-conda create -n abricate -c bioconda abricate
-conda activate abricate
-
-## Download the bacmet2 database
-abricate-get_db --db bacmet2 ## the logging will tell you where the database is downloaded to, e.g. /home/<user>/bin/miniconda3/envs/abricate/db/bacmet2/sequences
-```
-
-The resulting directory and database name can be passed to the pipeline as follows
-
-```bash
---arg_abricate_db /<path>/<to>/<abricate>/db/ --arg_abricate_db_id bacmet2
-```
-
-The contents of the directory should have a directory named with the database name in the top level (e.g. `bacmet2/`).
-
 ### AMRFinderPlus
 
 AMRFinderPlus relies on NCBI's curated Reference Gene Database and curated collection of Hidden Markov Models.
 
-nf-core/funcscan will download this database for you, unless the path to a local version is given with:
+AMRfinderflow will download this database for you, unless the path to a local version is given with:
 
 ```bash
 --arg_amrfinderplus_db '/<path>/<to>/<amrfinderplus_db>/latest'
@@ -330,7 +203,7 @@ You must give the `latest` directory to the pipeline, and the contents of the di
 To obtain a local version of the database:
 
 1. Install AMRFinderPlus from [bioconda](https://bioconda.github.io/recipes/ncbi-amrfinderplus/README.html?highlight=amrfinderplus).
-   To ensure database compatibility, please use the same version as is used in your nf-core/funcscan release (check version in file `<installation>/<path>/funcscan/modules/nf-core/amrfinderplus/run/environment.yml`).
+   To ensure database compatibility, please use the same version as is used in your amrfinderflow release (check version in file `<installation>/<path>/amrfinderflow/modules/nf-core/amrfinderplus/run/environment.yml`).
 
 ```bash
 conda create -n amrfinderplus -c bioconda ncbi-amrfinderplus=3.12.8
@@ -370,43 +243,6 @@ conda activate amrfinderplus
 The flag `--save_db` saves the pipeline-downloaded databases in your results directory. You can then move these to a central cache directory of your choice for re-use in the future.
 :::
 
-### DeepARG
-
-DeepARG requires a database of potential antimicrobial resistance gene sequences based on a consensus from UNIPROT, CARD, and ARDB.
-
-nf-core/funcscan can download this database for you, however it is very slow and pipeline runtime will be improved if you download this separately and supply it to the pipeline.
-
-You can either:
-
-1. Install DeepARG from [bioconda](https://bioconda.github.io/recipes/deeparg/README.html?highlight=deeparg)
-
-```bash
-conda create -n deeparg -c bioconda deeparg
-conda activate deeparg
-```
-
-2. Run `deeparg download_data -o /<path>/<to>/<database_location>/`
-
-Or download the files directly from the [DeepARG database Zenodo archive](https://zenodo.org/record/8280582).
-
-Note that more recent database versions maybe available from the [ARGMiner service](https://bench.cs.vt.edu/argminer/#/home).
-
-You can then supply the path to resulting database directory with:
-
-```bash
---arg_deeparg_db '/<path>/<to>/<deeparg>/<db>/'
-```
-
-The contents of the directory should include directories such as `database`, `model`, and files such as `deeparg.gz` etc. in the top level.
-
-Note that if you supply your own database that is not downloaded by the pipeline, make sure to also supply `--arg_deeparg_db_version` along
-with the version number so hAMRonization will correctly display the database version in the summary report.
-
-:::info
-The flag `--save_db` saves the pipeline-downloaded databases in your results directory.
-You can then move these to a central cache directory of your choice for re-use in the future.
-:::
-
 ### MMSeqs2
 
 To download MMSeqs2 databases for taxonomic classification, you can install `mmseqs` via conda:
@@ -425,93 +261,6 @@ mmseqs databases <DATABASE_NAME> <LOCATION_TO_STORE> tmp/
 :::info
 You may want to specify a different location for `tmp/`, we just borrowed here from the official `mmseqs` [documentation](https://github.com/soedinglab/mmseqs2/wiki#downloading-databases).
 :::
-
-### RGI
-
-RGI requires the database CARD which can be downloaded by nf-core/funcscan or supplied by the user manually.
-To download and supply the database yourself, do:
-
-1. Download [CARD](https://card.mcmaster.ca/latest/data)
-
-```bash
-wget https://card.mcmaster.ca/latest/data
-```
-
-2. Extract the (`.tar.bz2`) archive.
-
-```bash
-tar -xjvf data
-```
-
-You can then supply the path to resulting database directory with:
-
-```bash
---arg_rgi_db '/<path>/<to>/<card>/'
-```
-
-The contents of the directory should include files such as `card.json`, `aro_index.tsv`, `snps.txt` etc. in the top level.
-
-:::info
-The flag `--save_db` saves the pipeline-downloaded databases in your results directory.
-You can then move these to a central cache directory of your choice for re-use in the future.
-:::
-
-### antiSMASH
-
-antiSMASH requires several databases for the detection of potential biosynthetic gene cluster (BGC) sequences (ClusterBlast, MIBiG, Pfam, Resfams, TIGRFAMs).
-
-nf-core/funcscan can download these databases for you, however this is very slow and pipeline runtime will be improved if you download them separately and supply them to the pipeline.
-
-To supply the database directories to the pipeline:
-
-1. Install antiSMASH. To ensure database compatibility, please use the same version as is used in your nf-core/funcscan release (check version in file `<pipeline_installation>/<path>/funcscan/modules/nf-core/antismash/antismash/environment.yml`).
-
-   For example installing via [bioconda](https://bioconda.github.io/recipes/antismash-lite/README.html):
-
-   ```bash
-   conda create -n antismash -c bioconda antismash
-   conda activate antismash
-   ```
-
-2. Run the command `download-antismash-databases`. Use `--database-dir` to specify a new location.
-3. You can then supply the paths to the resulting databases and the whole installation directory with:
-
-   ```bash
-   --bgc_antismash_db '/<path>/<to>/<antismash>/<db>/'
-   ```
-
-The contents of the database directory should include directories such as `as-js/`, `clusterblast/`, `clustercompare/` etc. in the top level.
-
-:::info
-The flag `--save_db` saves the pipeline-downloaded databases in your results directory. You can then move these to a central cache directory of your choice for re-use in the future.
-:::
-
-### DeepBGC
-
-DeepBGC relies on trained models and Pfams to run its analysis.
-nf-core/funcscan will download these databases for you. If the flag `--save_db` is set, the downloaded files will be stored in the output directory under `<output_directory>/databases/deepbgc/`.
-
-Alternatively, you can download the database locally with:
-
-```bash
-conda create -n deepbgc -c bioconda deepbgc
-conda activate deepbgc
-export DEEPBGC_DOWNLOADS_DIR=<PREFERRED_CACHE_DIRECTORY>
-deepbgc download
-```
-
-You can then indicate the path to the database folder in the pipeline with `--bgc_deepbgc_db <path>/<to>/<deepbgc_db>/`.
-The contents of the database directory should include directories such as `common`, `0.1.0` in the top level:
-
-```tree
-deepbgc_db/
-├── common
-└── <version-num>[0.1.0]
-  ├── classifier
-  | └── myClassifiers*.pkl
-  └── detector
-    └── myDetectors*.pkl
-```
 
 ### InterProScan
 
@@ -561,16 +310,16 @@ interproscan_db/
 When you run the below command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull nf-core/funcscan
+nextflow pull barbarahelena/amrfinderflow
 ```
 
 ## Reproducibility
 
 It is a good idea to specify the pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [nf-core/funcscan releases page](https://github.com/nf-core/funcscan/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+First, go to the [barbarahelena/amrfinderflow releases page](https://github.com/barbarahelena/amrfinderflow/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
-This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
+This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
 
 To further assist in reproducibility, you can use share and reuse [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
 

@@ -5,16 +5,10 @@ lint:
 nf_core_version: 3.3.2
 repository_type: pipeline
 template:
-  author: Jasmin Frangenberg, Anan Ibrahim, Louisa Perelo, Moritz E. Beber,
-    James A. Fellows Yates
-  description: Pipeline for screening for functional components of assembled
-    contigs
+  author: The authors of nfcore/funcscan, Barbara Verhaar
+  description: Pipeline for screening for antibiotic resistance genes
   force: false
   is_nfcore: true
-  name: funcscan
-  org: nf-core
+  name: amrfinderflow
   outdir: .
-  skip_features:
-    - igenomes
-    - fastqc
-  version: 3.0.0
+  version: 1.0.0

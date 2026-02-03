@@ -1,8 +1,8 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/funcscan/master/nextflow_schema.json",
-    "title": "nf-core/funcscan pipeline parameters",
-    "description": "Pipeline for screening for functional components of assembled contigs",
+    "$id": "https://raw.githubusercontent.com/barbarahelena/amrfinderflow/master/nextflow_schema.json",
+    "title": "amrfinderflow pipeline parameters",
+    "description": "Pipeline for screening for antibiotic resistance genes",
     "type": "object",
     "$defs": {
         "input_output_options": {
