@@ -33,30 +33,44 @@ workflow ANNOTATION {
         }
 
         PYRODIGAL(fasta, "gbk")
-        GUNZIP_PYRODIGAL_FAA(PYRODIGAL.out.faa)
-        GUNZIP_PYRODIGAL_FNA(PYRODIGAL.out.fna)
-        GUNZIP_PYRODIGAL_GBK(PYRODIGAL.out.annotations)
         ch_versions = ch_versions.mix(PYRODIGAL.out.versions)
-        ch_versions = ch_versions.mix(GUNZIP_PYRODIGAL_FAA.out.versions)
-        ch_versions = ch_versions.mix(GUNZIP_PYRODIGAL_FNA.out.versions)
-        ch_versions = ch_versions.mix(GUNZIP_PYRODIGAL_GBK.out.versions)
-        ch_annotation_faa = GUNZIP_PYRODIGAL_FAA.out.gunzip
-        ch_annotation_fna = GUNZIP_PYRODIGAL_FNA.out.gunzip
-        ch_annotation_gbk = GUNZIP_PYRODIGAL_GBK.out.gunzip
+        
+        if (!params.skip_annotation_gunzip) {
+            GUNZIP_PYRODIGAL_FAA(PYRODIGAL.out.faa)
+            GUNZIP_PYRODIGAL_FNA(PYRODIGAL.out.fna)
+            GUNZIP_PYRODIGAL_GBK(PYRODIGAL.out.annotations)
+            ch_versions = ch_versions.mix(GUNZIP_PYRODIGAL_FAA.out.versions)
+            ch_versions = ch_versions.mix(GUNZIP_PYRODIGAL_FNA.out.versions)
+            ch_versions = ch_versions.mix(GUNZIP_PYRODIGAL_GBK.out.versions)
+            ch_annotation_faa = GUNZIP_PYRODIGAL_FAA.out.gunzip
+            ch_annotation_fna = GUNZIP_PYRODIGAL_FNA.out.gunzip
+            ch_annotation_gbk = GUNZIP_PYRODIGAL_GBK.out.gunzip
+        } else {
+            ch_annotation_faa = PYRODIGAL.out.faa
+            ch_annotation_fna = PYRODIGAL.out.fna
+            ch_annotation_gbk = PYRODIGAL.out.annotations
+        }
     }
     else if (params.annotation_tool == "prodigal") {
 
         PRODIGAL(fasta, "gbk")
-        GUNZIP_PRODIGAL_FAA(PRODIGAL.out.amino_acid_fasta)
-        GUNZIP_PRODIGAL_FNA(PRODIGAL.out.nucleotide_fasta)
-        GUNZIP_PRODIGAL_GBK(PRODIGAL.out.gene_annotations)
         ch_versions = ch_versions.mix(PRODIGAL.out.versions)
-        ch_versions = ch_versions.mix(GUNZIP_PRODIGAL_FAA.out.versions)
-        ch_versions = ch_versions.mix(GUNZIP_PRODIGAL_FNA.out.versions)
-        ch_versions = ch_versions.mix(GUNZIP_PRODIGAL_GBK.out.versions)
-        ch_annotation_faa = GUNZIP_PRODIGAL_FAA.out.gunzip
-        ch_annotation_fna = GUNZIP_PRODIGAL_FNA.out.gunzip
-        ch_annotation_gbk = GUNZIP_PRODIGAL_GBK.out.gunzip
+        
+        if (!params.skip_annotation_gunzip) {
+            GUNZIP_PRODIGAL_FAA(PRODIGAL.out.amino_acid_fasta)
+            GUNZIP_PRODIGAL_FNA(PRODIGAL.out.nucleotide_fasta)
+            GUNZIP_PRODIGAL_GBK(PRODIGAL.out.gene_annotations)
+            ch_versions = ch_versions.mix(GUNZIP_PRODIGAL_FAA.out.versions)
+            ch_versions = ch_versions.mix(GUNZIP_PRODIGAL_FNA.out.versions)
+            ch_versions = ch_versions.mix(GUNZIP_PRODIGAL_GBK.out.versions)
+            ch_annotation_faa = GUNZIP_PRODIGAL_FAA.out.gunzip
+            ch_annotation_fna = GUNZIP_PRODIGAL_FNA.out.gunzip
+            ch_annotation_gbk = GUNZIP_PRODIGAL_GBK.out.gunzip
+        } else {
+            ch_annotation_faa = PRODIGAL.out.amino_acid_fasta
+            ch_annotation_fna = PRODIGAL.out.nucleotide_fasta
+            ch_annotation_gbk = PRODIGAL.out.gene_annotations
+        }
     }
     else if (params.annotation_tool == "prokka") {
 

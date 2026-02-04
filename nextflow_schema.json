@@ -216,6 +216,12 @@
                     "type": "boolean",
                     "description": "Specify whether to save gene annotations in the results directory.",
                     "fa_icon": "fas fa-save"
+                },
+                "skip_annotation_gunzip": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip decompression of annotation files (.faa, .fna, .gbk). Useful to save disk space and processing time when compressed outputs are sufficient.",
+                    "fa_icon": "fas fa-file-archive"
                 }
             },
             "fa_icon": "fas fa-file-signature",

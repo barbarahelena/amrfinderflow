@@ -27,6 +27,9 @@ process EXTRACT_ARG_SEQUENCES {
     # Column 7: Class (e.g., GLYCOPEPTIDE)
     # Column 8: Subclass (e.g., VANCOMYCIN)
     
+    # Handle compressed or uncompressed FNA file
+    FNA_FILE="${annotation_fna}"
+    
     # Extract gene IDs from AMRFinderPlus output (column 1)
     tail -n +2 ${amrfinder_tsv} | cut -f1 > ${prefix}_arg_ids.txt
 
@@ -41,7 +44,8 @@ process EXTRACT_ARG_SEQUENCES {
         tail -n +2 ${amrfinder_tsv} | awk -F'\\t' '{print \$1"\\t"\$2"\\t"\$7"\\t"\$8}' >> ${prefix}.arg_summary.tsv
 
         # Extract NUCLEOTIDE sequences from FNA using gene IDs
-        seqkit grep -f ${prefix}_arg_ids.txt ${annotation_fna} > ${prefix}_temp.fna
+        # SeqKit can handle .gz files automatically
+        seqkit grep -f ${prefix}_arg_ids.txt "\$FNA_FILE" > ${prefix}_temp.fna
 
         # Debug: show what we're matching
         echo "=== First 3 lines of summary TSV ===" >&2
