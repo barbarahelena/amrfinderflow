@@ -1,0 +1,40 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/barbarahelena/amrfinderflow/master/assets/schema_input.json",
+    "title": "amrfinderflow pipeline - params.fastqs schema",
+    "description": "Schema for the file provided with params.fastqs",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample ID must be provided, must be an integer or string and cannot contain spaces",
+                "meta": ["id"]
+            },
+            "group": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Group ID must be a string and cannot contain spaces",
+                "meta": ["group"]
+            },
+            "fastq_1": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "fastq_2": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "errorMessage": "FastQ file for reads 2 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            }
+        },
+        "required": ["sample", "fastq_1", "fastq_2"]
+    },
+    "uniqueItems": true
+}

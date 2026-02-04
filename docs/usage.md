@@ -70,11 +70,20 @@ barbarahelena/amrfinderflow takes FASTA files as input, typically contigs or who
 --input '[path to samplesheet file]'
 ```
 
-The input samplesheet has to be a comma-separated file (`.csv`) with 2 (`sample`, and `fasta`) or 4 columns (`sample`, `fasta`, `protein`, `gbk`), and a header row as shown in the examples below.
+The input samplesheet has to be a comma-separated file (`.csv`) with 2-5 columns and a header row as shown in the examples below.
 
-If you already have annotated contigs with peptide sequences and an annotation file in Genbank format (`.gbk.` or `.gbff`), you can supply these to the pipeline using the optional `protein` and `gbk` columns. If these additional columns are supplied, pipeline annotation (i.e. with bakta, prodigal, pyrodigal or prokka) will be skipped and your corresponding annotation files used instead.
+**Required columns:**
+- `sample`: Sample name
+- `fasta`: Path to FASTA file (contigs/genome)
 
-For two columns (without pre-annotated data):
+**Optional columns:**
+- `group`: Group identifier for samples (see ARG workflow section below)
+- `protein`: Pre-generated protein FASTA file (`.faa`)
+- `gbk`: Pre-generated Genbank annotation file (`.gbk` or `.gbff`)
+
+If you already have annotated contigs with peptide sequences and an annotation file in Genbank format, you can supply these to the pipeline using the optional `protein` and `gbk` columns. If these additional columns are supplied, pipeline annotation (i.e. with bakta, prodigal, pyrodigal or prokka) will be skipped and your corresponding annotation files used instead.
+
+### Basic samplesheet (without pre-annotated data):
 
 ```csv title="samplesheet.csv"
 sample,fasta
@@ -82,7 +91,17 @@ sample_1,/<path>/<to>/wastewater_metagenome_contigs_1.fasta.gz
 sample_2,/<path>/<to>/wastewater_metagenome_contigs_2.fasta.gz
 ```
 
-For four columns (with pre-annotated data):
+### With grouping for ARG read mapping:
+
+```csv title="samplesheet.csv"
+sample,group,fasta
+sample_1,0,/<path>/<to>/wastewater_metagenome_contigs_1.fasta.gz
+sample_2,0,/<path>/<to>/wastewater_metagenome_contigs_2.fasta.gz
+sample_3,1,/<path>/<to>/wastewater_metagenome_contigs_3.fasta.gz
+sample_4,1,/<path>/<to>/wastewater_metagenome_contigs_4.fasta.gz
+```
+
+### With pre-annotated data:
 
 ```csv title="samplesheet.csv"
 sample,fasta,protein,gbk
@@ -93,11 +112,46 @@ sample_2,/<path>/<to>/wastewater_metagenome_contigs_2.fasta.gz,/<path>/<to>/wast
 | Column    | Description                                                                                                                                                                                                           |
 | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`  | Custom sample name. This will be used to name all output files from the pipeline. Spaces in sample names are automatically converted to underscores (`_`).                                                            |
+| `group`   | **Optional.** Group identifier (integer or string) for grouping samples in ARG workflow. Samples with the same group ID will have their ARG sequences merged and deduplicated together before read mapping. If not provided, each sample is treated as its own group. |
 | `fasta`   | Path or URL to a gzipped or uncompressed FASTA file. Accepted file suffixes are: `.fasta`, `.fna`, or `.fa`, or any of these with `.gz`, e.g. `.fa.gz`.                                                               |
-| `protein` | Optional path to a pre-generated amino acid FASTA file (`.faa`) containing protein annotations of `fasta`, optionally gzipped. Required to be supplied if `gbk` also given.                                           |
-| `gbk`     | Optional path to a pre-generated annotation file in Genbank format (`.gbk`, or `.gbff`) format containing annotations information of `fasta`, optionally gzipped. Required to be supplied if `protein` is also given. |
+| `protein` | **Optional.** Path to a pre-generated amino acid FASTA file (`.faa`) containing protein annotations of `fasta`, optionally gzipped. Required to be supplied if `gbk` also given.                                           |
+| `gbk`     | **Optional.** Path to a pre-generated annotation file in Genbank format (`.gbk`, or `.gbff`) format containing annotations information of `fasta`, optionally gzipped. Required to be supplied if `protein` is also given. |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+
+### FASTQ input for ARG read mapping
+
+If you want to perform ARG abundance quantification by mapping metagenomic reads to the detected ARG catalog, you can provide an additional FASTQ samplesheet via the `--input_fastqs` parameter:
+
+```bash
+--input_fastqs '[path to fastq samplesheet file]'
+```
+
+The FASTQ samplesheet should be a comma-separated file (`.csv`) with 4 columns (`sample`, `group`, `fastq_1`, `fastq_2`):
+
+```csv title="samplesheet_fastqs.csv"
+sample,group,fastq_1,fastq_2
+sample_1,0,/<path>/<to>/sample_1_R1.fq.gz,/<path>/<to>/sample_1_R2.fq.gz
+sample_2,0,/<path>/<to>/sample_2_R1.fq.gz,/<path>/<to>/sample_2_R2.fq.gz
+sample_3,1,/<path>/<to>/sample_3_R1.fq.gz,/<path>/<to>/sample_3_R2.fq.gz
+sample_4,1,/<path>/<to>/sample_4_R1.fq.gz,/<path>/<to>/sample_4_R2.fq.gz
+```
+
+| Column    | Description                                                                                                                                                                                                           |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Sample name. Should match the `sample` names in the main input samplesheet.                                                                                                                                           |
+| `group`   | Group identifier. Should match the `group` values in the main input samplesheet.                                                                                                                                      |
+| `fastq_1` | Path to forward read FASTQ file (gzipped or uncompressed).                                                                                                                                                            |
+| `fastq_2` | Path to reverse read FASTQ file (gzipped or uncompressed).                                                                                                                                                            |
+
+The pipeline will:
+1. Detect ARGs in contigs using AMRFinderPlus (protein mode with Pyrodigal)
+2. Extract ARG nucleotide sequences with metadata (gene symbol, class, subclass)
+3. Merge and deduplicate ARG sequences per group (95% identity with CD-HIT-EST)
+4. Create BWA-MEM2 index for each group's ARG catalog
+5. Map reads from each sample to their group's ARG catalog
+6. Calculate abundance metrics (RPKM, RPK, Coverage, Prevalence) for each ARG
+7. Merge results per group and across all samples
 
 :::danger
 We highly recommend performing quality control on input contigs before running the pipeline. You may not receive results for some tools if none of the contigs in a FASTA file reach certain thresholds. Check parameter documentation for relevant minimum contig parameters.

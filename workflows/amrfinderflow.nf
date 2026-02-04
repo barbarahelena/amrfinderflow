@@ -39,9 +39,10 @@ include { SEQKIT_SEQ as SEQKIT_SEQ_FILTER } from '../modules/nf-core/seqkit/seq/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow FUNCSCAN {
+workflow AMRFINDERFLOW {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    ch_reads        // channel: reads read in from --fastqs, for mapping back to ARG catalog if required
 
     main:
 
@@ -97,6 +98,7 @@ workflow FUNCSCAN {
 
         ch_new_annotation = ch_input_for_annotation
             .join(ANNOTATION.out.faa)
+            .join(ANNOTATION.out.fna)
             .join(ANNOTATION.out.gbk)
     }
     else {
@@ -106,9 +108,10 @@ workflow FUNCSCAN {
     // Mix back the preannotated samples with the newly annotated ones
     ch_prepped_input = ch_new_annotation
         .mix(ch_intermediate_input.preannotated)
-        .multiMap { meta, fasta, faa, gbk ->
+        .multiMap { meta, fasta, faa, fna, gbk ->
             fastas: [meta, fasta]
             faas: [meta, faa]
+            fnas: [meta, fna]
             gbks: [meta, gbk]
         }
 
@@ -138,7 +141,7 @@ workflow FUNCSCAN {
     if (params.run_protein_annotation) {
         def filtered_faas = ch_prepped_input.faas.filter { meta, file ->
             if (file != [] && file.isEmpty()) {
-                log.warn("[nf-core/funcscan] Annotation of the following sample produced an empty FAA file. InterProScan classification of the CDS requiring this file will not be executed: ${meta.id}")
+                log.warn("[barbarahelena/amrfinderflow] Annotation of the following sample produced an empty FAA file. InterProScan classification of the CDS requiring this file will not be executed: ${meta.id}")
             }
             !file.isEmpty()
         }
@@ -152,7 +155,7 @@ workflow FUNCSCAN {
 
         ch_interproscan_tsv = PROTEIN_ANNOTATION.out.tsv.map { meta, file ->
             if (file == [] || file.isEmpty()) {
-                log.warn("[nf-core/funcscan] Protein annotation with InterProScan produced an empty TSV file. No protein annotation will be added for sample ${meta.id}.")
+                log.warn("[barbarahelena/amrfinderflow] Protein annotation with InterProScan produced an empty TSV file. No protein annotation will be added for sample ${meta.id}.")
                 [meta, []]
             } else {
                 [meta, file]
@@ -175,21 +178,25 @@ workflow FUNCSCAN {
     if (params.run_arg_screening && !params.run_taxa_classification) {
         ARG(
             ch_prepped_input.fastas,
-            [],
+            ch_prepped_input.faas,
+            ch_prepped_input.fnas,
             ch_taxonomy_tsv,
+            ch_reads
         )
         ch_versions = ch_versions.mix(ARG.out.versions)
     }
     else if (params.run_arg_screening && params.run_taxa_classification) {
         ARG(
             ch_prepped_input.fastas,
-            [],
+            ch_prepped_input.faas,
+            ch_prepped_input.fnas,
             ch_taxonomy_tsv.filter { meta, file ->
                 if (file.isEmpty()) {
-                    log.warn("[nf-core/funcscan] Taxonomy classification of the following sample produced an empty TSV file. Taxonomy merging will not be executed: ${meta.id}")
+                    log.warn("[barbarahelena/amrfinderflow] Taxonomy classification of the following sample produced an empty TSV file. Taxonomy merging will not be executed: ${meta.id}")
                 }
                 !file.isEmpty()
             },
+            ch_reads
         )
         ch_versions = ch_versions.mix(ARG.out.versions)
     }
@@ -200,7 +207,7 @@ workflow FUNCSCAN {
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_' + 'funcscan_software_' + 'versions.yml',
+            name: 'amrfinderflow_software_versions.yml',
             sort: true,
             newLine: true,
         )

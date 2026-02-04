@@ -31,7 +31,12 @@ results/
 ├── arg/
 |   ├── amrfinderplus/
 |   ├── argnorm/
-|   └── hamronization/
+|   ├── bwa_mapping/
+|   ├── deduplicated_catalog/
+|   ├── extracted_sequences/
+|   ├── hamronization/
+|   ├── merged_counts/
+|   └── merged_sequences/
 ├── databases/
 ├── pipeline_info/
 ├── protein_annotation/

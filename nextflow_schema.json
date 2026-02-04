@@ -23,6 +23,17 @@
                     "help_text": "Before running the pipeline, you will need to create a design file with information about the samples to be scanned by nf-core/funcscan, containing at a minimum sample names and paths to contigs. Use this parameter to specify its location. It has to be a two or four column comma-separated file with a header row (`sample,fasta` or `sample,fasta,protein,gbk`). See [usage docs](https://nf-co.re/funcscan/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
                 },
+                "fastqs": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "schema": "assets/schema_fastqs.json",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "description": "Path to comma-separated file containing sample names and paths to corresponding FastQ files for read mapping.",
+                    "help_text": "Optional: Provide a samplesheet with raw reads (FastQ files) to enable read mapping back to the ARG catalog. The file should be a comma-separated file with headers: `sample,group,fastq_1,fastq_2`. The `group` field is optional and allows grouping samples (e.g., by subject/patient) to create shared ARG catalogs.",
+                    "fa_icon": "fas fa-file-csv"
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",

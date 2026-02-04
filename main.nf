@@ -1,11 +1,10 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/funcscan
+    barbarahelena/amrfinderflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/funcscan
-    Website: https://nf-co.re/funcscan
-    Slack  : https://nfcore.slack.com/channels/funcscan
+    Github : https://github.com/barbarahelena/amrfinderflow
+    Website: https://github.com/barbarahelena/amrfinderflow
 ----------------------------------------------------------------------------------------
 */
 
@@ -15,9 +14,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { FUNCSCAN                } from './workflows/funcscan'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_funcscan_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_funcscan_pipeline'
+include { AMRFINDERFLOW           } from './workflows/amrfinderflow'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_amrfinderflow_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_amrfinderflow_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,18 +27,20 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_func
 //
 // WORKFLOW: Run main analysis pipeline
 //
-workflow NFCORE_FUNCSCAN {
+workflow BARBARAHELENA_AMRFINDERFLOW {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    reads       // channel: reads from --fastqs for ARG mapping
 
     main:
 
     //
     // WORKFLOW: Run pipeline
     //
-    FUNCSCAN (
-        samplesheet
+    AMRFINDERFLOW (
+        samplesheet,
+        reads
     )
 }
 /*
@@ -66,8 +67,9 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_FUNCSCAN (
-        PIPELINE_INITIALISATION.out.samplesheet
+    BARBARAHELENA_AMRFINDERFLOW (
+        PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.reads
     )
     //
     // SUBWORKFLOW: Run completion tasks
@@ -78,8 +80,7 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        params.hook_url,
-        []
+        params.hook_url
     )
 }
 

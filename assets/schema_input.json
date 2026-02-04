@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/funcscan/master/assets/schema_input.json",
-    "title": "nf-core/funcscan pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/barbarahelena/amrfinderflow/master/assets/schema_input.json",
+    "title": "amrfinderflow pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
@@ -12,6 +12,12 @@
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample ID must be provided, must be an integer or string and cannot contain spaces",
                 "meta": ["id"]
+            },
+            "group": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Group identifier must be a string without spaces. Used to link samples with fastqs for read mapping.",
+                "meta": ["group"]
             },
             "fasta": {
                 "type": "string",
